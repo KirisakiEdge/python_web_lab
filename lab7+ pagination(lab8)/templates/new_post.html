@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% from "_formhelpers.html" import render_field %}
+<form method="POST" action="" enctype="multipart/form-data">
+  <dl>
+    {{ form.csrf_token }}
+    <div class="row">
+      <div class="form-group col-md-3">
+       {{ render_field(form.title, class="form-control") }}
+      </div>
+    </div>
+    <div class="row"> 
+      <div class="form-group col-md-10">
+          {{ render_field(form.content, class="form-control") }}
+      </div>
+    </div>  
+  </dl>
+  <input class="btn btn-primary" type="submit" value="Submit">
+</form>
+{% endblock %}

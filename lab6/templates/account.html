@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    img{
+    border-radius: 50%;
+}
+</style>
+	<div class="content-section">
+		<div class="media">
+			<img src="{{ image_file }}" alt="Avatar">
+			<div class="media-body">
+				<h2 class="account-heading">{{ current_user.username }}</h2>
+				<p class="text-secondary"> {{ current_user.email}}</p>	
+			</div>
+		</div>
+		{% from "_formhelpers.html" import render_field %}
+        <form method="POST" action="" enctype="multipart/form-data">
+            <dl>
+                {{ form.csrf_token }}
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        {{ render_field(form.username, class="form-control") }}
+                    </div>
+                    <div class="form-group col-md-5">
+                        {{ render_field(form.email, class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                    	{{ form.picture.label() }}
+                    	{{ form.picture(class="form-control-file") }}
+                    	{% if form.picture.errors %}
+                    		{% for error in form.picture.errors %}
+                    			<span class="text-danger">{{ error }}</span>
+                    		{% endfor %}
+                    	{% endif %}		
+                    </div>
+                </div>
+            </dl>
+            <input class="btn btn-primary" type="submit" value="Update">
+        </form>
+	</div>
+{% endblock %}
+
+

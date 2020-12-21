@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+{% from "_formhelpers.html" import render_field %}
+<form method="POST" action="" enctype="multipart/form-data">
+  <h1>Hi, {{current_user.username}}!</h1>
+    <div class="form-group">
+      {% for post in posts.items %}
+      <h2>{{post.backref.username}}</h2> says: <b>{{post.content}}</b></p>
+    </div>    
+    <div class="modal-footer">
+      <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('update_post', post_id=post.id) }}">Update</a>
+      <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST">
+        <input class="btn btn-danger btn-sm m-1" type="submit" value="Delete">
+      </form>
+    </div>
+    {% endfor %}
+    {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+      {% if page_num %}
+        {% if posts.page == page_num %}
+          <a class="btn btn-info mb-4" href="{{ url_for('posts', page=page_num) }}">{{ page_num }}</a>
+        {% else %}
+          <a class="btn btn-outline-info mb-4" href="{{ url_for('posts', page=page_num) }}">{{ page_num }}</a>
+        {% endif %}
+      {% else %}
+        ...
+      {% endif %}
+    {% endfor %}
+{% endblock %}

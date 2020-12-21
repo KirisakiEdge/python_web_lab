@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+{% from "_formhelpers.html" import render_field %}
+<form method="POST" action="" enctype="multipart/form-data">
+    <div class="form-group">
+      {% for teacher in query %}
+        <h2>{{teacher.secondname}} {{teacher.firstname}} {{teacher.surname}}</h2>
+        <h3>Position: {{teacher.position}}</h3>
+        <h3>Cafedra: {{teacher.cafedra}}</h3>
+        <h3>Start to work: {{teacher.startToWork}}</h3>
+        <h3>Number: {{teacher.number}}</h3></p>
+        <h3>------------------------</h3></p>
+      {% endfor %}
+    </div> 
+{% endblock %}

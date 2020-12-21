@@ -1,0 +1,15 @@
+<html>
+  <head>
+    {% if title %}
+    <title>{{title}} - microblog</title>
+    {% else %}
+    <title>microblog</title>
+    {% endif %}
+  </head>
+  <body>
+    <h1>Hi, {{user.nickname}}!</h1>
+    {% for post in posts %}
+    <h1>{{post.author.nickname}}</h1> says: <b>{{post.body}}</b></p>
+    {% endfor %}
+  </body>
+</html>
