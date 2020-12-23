@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect, request, abort
 from flaskblog import app, db, bcrypt
 from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, EditProfileForm, AdminUserCreateForm, AdminUserUpdateForm
-from flaskblog.models import User, Post
+from flaskblog.models import User, Post, PostSchema
 from flask_login import login_user, current_user, logout_user, login_required
 import os
 import secrets
@@ -9,6 +9,10 @@ import errno
 from PIL import Image
 from datetime import datetime
 from functools import wraps
+from flask import jsonify, request
+from flask_restful import Resource
+import json 
+
 
 def make_sure_path_exists(path):
     try:
@@ -252,4 +256,82 @@ def user_delete_admin(id):
 	flash('User Deleted.')
 	return redirect(url_for('users_list_admin'))
 
+@app.route('/users', methods=['GET'])
+def get_all_users():
+    users = User.query.all()
+    output = []
+    for user in users:
+        user_data = {}
+        user_data['id'] = user.id
+        user_data['username'] = user.username
+        user_data['password'] = user.password
+        user_data['admin'] = user.admin
+        output.append(user_data)
+    return jsonify({'users': output})
 
+@app.route('/users/<id>', methods=['GET'])
+def get_one_user(id):
+    user = User.query.filter_by(id=id).first()
+    if not user:
+        return jsonify({'message': 'No user found!'})
+    user_data = {}
+    user_data['id'] = user.id
+    user_data['username'] = user.username
+    user_data['password'] = user.password
+    user_data['admin'] = user.admin
+
+    return jsonify({'user': user_data})
+
+@app.route('/users', methods=['POST'])
+def create_user():
+    data = request.get_json()
+
+    hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
+
+    new_user = User(username=data['username'], email=data['email'], password=hashed_password, admin=False)
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({'message': 'New user created!'})
+
+@app.route('/users/<id>', methods=['PUT'])
+def promote_user(id):
+    user = User.query.filter_by(id=id).first()
+    if not user:
+        return jsonify({'message': 'No user found!'})
+    user.admin = True
+    db.session.commit()
+    return jsonify({'message': 'The user has been promoted!'})
+
+@app.route('/users/<id>',methods=['DELETE'])
+def delete_user(id):
+    user = User.query.filter_by(id=id).first()
+    if not user:
+        return jsonify({'message': 'No user found!'})
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'message': 'The user has been deleted!'})
+
+
+class PersonEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Post):
+        	return obj.__dict__
+        return json.JSONEncoder.default(self, obj)
+
+class HelloWorld(Resource):
+	def get(self):
+		return {"about": "Hello!"}
+	def post(self):
+		some_json = request.get_json()
+		return {'you sent': some_json}, 201
+
+class GetPosts(Resource):
+	def get(self):
+		posts = db.session.query(Post).all()
+		result = PostSchema(many=True).dump(posts)
+		return jsonify(result)
+class GetPost(Resource):
+	def get(self, title):
+		post = Post.query.filter_by(title=title).first()
+		result = PostSchema().dump(post)
+		return jsonify(result)

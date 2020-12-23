@@ -73,6 +73,12 @@ class AdminUserUpdateForm(FlaskForm):
 	username = StringField('Username', [DataRequired()])
 	admin = BooleanField('Is Admin ?')
 
+class MyAdminIndexView(AdminIndexView):
+
+	def is_accessible(self):
+		return current_user.is_authenticated and current_user.is_admin()
+
+
 class UserAdminView(ModelView, ActionsMixin):
     column_searchable_list = ('username',)
     column_sortable_list = ('username', 'admin')

@@ -5,6 +5,8 @@ from flask_login import LoginManager
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_admin import Admin
+from flask_restful import Api
+from flask_marshmallow import Marshmallow
 import os
 
 app = Flask(__name__)
@@ -20,11 +22,16 @@ login_manager.login_message_category = 'info'
 migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
+api = Api(app)
+ma = Marshmallow(app)
 
 import flaskblog.forms as views
-admin = Admin(app)
 
-from flask_admin.contrib.sqla import ModelView
+admin = Admin(app, index_view=views.MyAdminIndexView())
 admin.add_view(views.UserAdminView(views.User, db.session))
+
+import flaskblog.routes as r
+api.add_resource(r.GetPosts, '/api/posts')
+api.add_resource(r.GetPost, '/api/post/<string:title>')
 
 from flaskblog import routes

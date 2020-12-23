@@ -1,5 +1,5 @@
 from datetime import datetime
-from flaskblog import db, login_manager, bcrypt
+from flaskblog import db, login_manager, bcrypt, ma
 from flask_login import UserMixin
 from hashlib import md5
 from wtforms import BooleanField, widgets, TextAreaField
@@ -23,7 +23,6 @@ class User(db.Model, UserMixin):
 	def __init__(self, username, email, password, notes='', admin=False):
 		self.username = username
 		self.email = email
-		#self.password = bcrypt.generate_password_hash(password)
 		self.password = password
 		self.admin = admin
 		self.notes = notes
@@ -43,6 +42,11 @@ class Post(db.Model):
 	
 	def __repr__(self):
 		return f"Post('{self.title}', '{self.date_posted}')"
+
+class PostSchema(ma.Schema):
+    class Meta:
+        fields = ('id','title','date_posted','content','user_id')
+
 
 class CKTextAreaWidget(widgets.TextArea):
 	def __call__(self, field, **kwargs):
