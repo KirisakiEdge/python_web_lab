@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import Flask
-from appInit import db
+from appInit import db, ma
 
 class Teacher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -14,3 +14,7 @@ class Teacher(db.Model):
 
     def __repr__(self):
         return f"User('{self.secondname}', '{self.firstname}')"
+
+class TeacherSchema(ma.Schema):
+    class Meta:
+        fields = ('id',' secondname','firstname','surname','position', 'cafedra', 'startToWork', 'number')

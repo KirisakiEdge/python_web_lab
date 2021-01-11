@@ -4,14 +4,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm, RecaptchaField
 from wtforms import StringField, SelectField, TextField
 from wtforms.validators import InputRequired, Length, AnyOf
-from Flaskblog import Teacher
+from Flaskblog import Teacher, TeacherSchema
 from appInit import app, db 
 import database
-from flask_bcrypt import Bcrypt
 from sqlalchemy import desc, asc
-
-Bootstrap(app)
-bcrypt = Bcrypt(app)
+from flask_restful import Api
+from flask import jsonify, request
+from flask_restful import Resource
+import json 
 
 #database.drop()
 database.createdb()
@@ -74,5 +74,45 @@ def addTeacher():
 
 
 
+class GetTeachers(Resource):
+  def get(self):
+    teacher = db.session.query(Teacher).all()
+    result = TeacherSchema(many=True).dump(teacher)
+    return jsonify(result)
+
+
+
+class GetTeacher(Resource):
+  def post(self, id):
+    teacher = Teacher(id =id,secondname='aaa',firstname='fff',surname='sss',
+      position='fff',cafedra='ggg',startToWork='ggg',number='xxx')
+    db.session.add(teacher)
+    db.session.commit()
+    result = TeacherSchema().dump(teacher)
+    return jsonify(result)
+
+  def get(self, id):
+    teacher = Teacher.query.filter_by(id=id).first()
+    result = TeacherSchema().dump(teacher)
+    return jsonify(result)
+
+  def put(self, id):
+    teacher = Teacher.query.filter_by(id=id).first()
+    teacher.surname = 'ooooooo'
+    db.session.commit()
+    result = TeacherSchema().dump(teacher)
+    return jsonify(result)
+
+  def delete(self, id):
+    teacher = Teacher.query.filter_by(id=id).first()
+    db.session.delete(teacher)
+    db.session.commit()
+    return jsonify({'message': 'The user has been deleted!'})
+
+
+api = Api(app)
+api.add_resource(GetTeacher, '/api/teacher/<string:id>')
+api.add_resource(GetTeachers, '/api/teachers')
+
 if __name__ == '__main__':
-    app.run(debug=True)
+  app.run(debug=True)
